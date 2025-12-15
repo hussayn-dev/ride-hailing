@@ -1,26 +1,27 @@
-= Lincride  API.
+= Lincride API
 Hussayn Abdul-Samad O. <hussaynabdsamad07@gmail.com>
-1.0, December 15, 2025: Lincride  APIReadme...
+1.0, December 15, 2025
 :toc:
 :icons: font
 :url-quickref: https://github.com/hussayn-dev/ride-hailing/
 
-TIP: Always read the doc. And remember to update the doc as soon as there is need for it to allow others have a smooth development experience.
+TIP: Always read the doc. Update it whenever necessary to allow others a smooth development experience.
 
 == Clone Repository
 
-Clone the repo
+Clone the repo:
 
 [source,bash]
 ----
 git clone https://github.com/hussayn-dev/ride-hailing/
 cd ride-hailing
 ----
-*Update the .env from the .env.sample* you can copy it
+
+*Update the .env from the .env.sample* (you can copy it).
 
 == Setup Local Development Environment
 
-Setup your virtual environment using venv and poetry footnote:[Your local venv setup may be slightly different depending on your operating system].
+Setup your virtual environment using venv and poetry footnote:[Your local venv setup may be slightly different depending on your OS].
 
 [source,bash]
 ----
@@ -30,22 +31,36 @@ pip install poetry
 poetry install
 ----
 
-== Run Code Locally
+Ensure that the latest version of Docker Desktop is installed: https://docs.docker.com/desktop/install/mac-install
 
-Ensure that the latest version of docker desktop is installed on your local machine. This will also install docker compose alongside automatically. Follow this link to install docker https://docs.docker.com/desktop/install/mac-install[docker installation].
-
-The run the following command from the root of the application
+== Quick Commands
 
 [source,bash]
 ----
+# Start local environment with Docker
 docker compose up --build
+
+# Start API manually with Daphne (if needed for WebSockets)
+docker compose exec api daphne -b 0.0.0.0 -p 8008 core.asgi:application
+
+# Start Kafka consumer to broadcast trip locations
+docker compose exec api python manage.py consume_trip_locations
+
+# Manage migrations
+docker compose exec api python manage.py makemigrations
+docker compose exec api python manage.py migrate
+
+# Run tests
+docker compose exec api python manage.py test
 ----
 
-_Access the API doc on http://localhost:8009/api/v1/doc[API Doc]_
+_Access the API documentation via Nginx at http://localhost:8009/api/v1/doc_
 
+_Redis Commander UI: http://localhost:60081_
 
-=== Manage Migrations
-Whenever you make changes to models, you need to generate migrations locally before pushing your code to the repo. In order to generate migrations, kindly run the following command in another terminal window while your main app is also running
+== Manage Migrations
+
+Whenever you make changes to models, generate migrations locally before pushing your code:
 
 [source,bash]
 ----
@@ -53,24 +68,23 @@ docker compose exec api python manage.py makemigrations
 docker compose exec api python manage.py migrate
 ----
 
------
-to update shared repo:
-After deployment of shared repo
-use the potrery add command to readd the shared repoand run build
-------
+== Update Shared Repo
 
+After deploying shared repo:
 
+[source,bash]
+----
+poetry add <shared-repo-package>
+docker compose build
+----
 
 .Table Contributors
 |===
 |Name |Role |Email
-
 |Hussayn Abdul-Samad O. |SBE |hussaynabdsamad07@gmail.com
-
 |===
 
 [quote]
 ____
 Happy Coding
 ____
-
