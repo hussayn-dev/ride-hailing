@@ -1,0 +1,59 @@
+#########################################
+# BUILDER #
+########################################
+
+# pull official base image
+FROM python:3.11-slim AS builder
+
+# set work directory
+WORKDIR /app
+
+# set environment variables
+ENV PIP_NO_CACHE_DIR 1
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+RUN python -m venv /venv
+ENV VIRTUAL_ENV=/venv
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
+# install system dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends gcc python3-dev musl-dev  \
+    libmagic1 libffi-dev git gdal-bin libgdal-dev postgis
+
+# install python dependencies
+COPY pyproject.toml pyproject.toml
+COPY poetry.lock poetry.lock
+RUN pip install poetry==1.8.2
+RUN --mount=type=secret,id=auth,target=/root/.config/pypoetry/auth.toml \
+    poetry install
+
+
+##############################
+# FINAL #
+##############################
+# pull official base image
+FROM python:3.11-slim AS final
+
+# create directory for the app user
+RUN mkdir -p /home/app
+
+
+# create the app user
+RUN addgroup --system app && adduser --system --group app
+
+# create the appropriate directories
+ENV PYTHONUNBUFFERED=1 \
+    VIRTUAL_ENV=/venv
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+WORKDIR /app
+
+COPY --from=builder --chown=app $VIRTUAL_ENV $VIRTUAL_ENV
+COPY --chown=app ["./app", "/app"]
+
+COPY ./docker/test/entrypoint.sh /entrypoint.sh
+RUN chmod +x  /entrypoint.sh
+
+USER app
+ENTRYPOINT ["/entrypoint.sh"]

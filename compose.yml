@@ -1,0 +1,131 @@
+name: "lincride"
+
+services:
+  db:
+    image: postgis/postgis:latest
+    platform: linux/amd64
+    container_name: lincride-db
+    ports:
+      - '30432:5432'
+    env_file:
+      - ./.env
+    healthcheck:
+      test: pg_isready -d lincride-db -U lincride
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - default
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+
+  api:
+    build:
+      context: .
+      dockerfile: docker/api/Dockerfile
+    image: lincride/lincride
+    # command: daphne -b 0.0.0.0 -p 8008 core.asgi:application
+    command: gunicorn core.asgi:application 
+      -k uvicorn.workers.UvicornWorker 
+      -b 0.0.0.0:8008
+    volumes:
+      - ./app:/app
+    expose:
+      - "8008"
+    scale: 1
+    env_file:
+      - ./.env
+    environment:
+      - DJANGO_SETTINGS_MODULE=core.settings
+    restart: always
+    depends_on:
+      - db
+      - redis
+
+  nginx:
+    image: nginx:latest
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - api
+    ports:
+      - "8009:8009"
+
+  redis:
+    image: redis:7-alpine
+    platform: linux/amd64
+    ports:
+      - "60999:6379"
+    volumes:
+      - redis-data:/data
+    env_file:
+      - ./.env
+
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    platform: linux/amd64
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+      - HTTP_USER=root
+      - HTTP_PASSWORD=qwerty
+      - REDIS_DB=0
+    ports:
+      - "60081:8081"
+    depends_on:
+      - redis
+
+#  dashboard:
+#    build:
+#      context: .
+#      dockerfile: docker/celery/Dockerfile-celery
+#    command: celery --broker=${CELERY_BROKER_URL} flower --port=5555
+#    ports:
+#      - "60785:5555"
+#    environment:
+#      - DJANGO_SETTINGS_MODULE=core.settings
+#    env_file:
+#      - ./.env
+#    depends_on:
+#      - api
+#      - redis
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    container_name: zookeeper
+    environment:
+      - ZOOKEEPER_CLIENT_PORT=2181
+      - ZOOKEEPER_TICK_TIME=2000
+      - ALLOW_ANONYMOUS_LOGIN=yes
+    ports:
+      - "2181:2181"
+  kafka:
+    container_name: kafka
+    image: confluentinc/cp-kafka:7.5.0
+    ports:
+      - "9092:9092"
+    volumes:
+      - ./kafka/data:/var/lib/kafka/data
+    environment:
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
+    depends_on:
+      - zookeeper
+
+  kafka-ui:
+    container_name: kafka-ui
+    image: provectuslabs/kafka-ui:latest
+    ports:
+      - "18080:8080"
+    restart: always
+    environment:
+      - KAFKA_CLUSTERS_0_NAME=local
+      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:9092
+      - KAFKA_CLUSTERS_0_ZOOKEEPER=zookeeper:2181
+    depends_on:
+      - kafka
+      - zookeeper
+volumes:
+  db-data:
+  redis-data:

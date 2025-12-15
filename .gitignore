@@ -1,0 +1,16 @@
+venv/
+.history/
+__pycache__/
+.idea/
+logs/celery.log
+celerybeat-schedule
+.vscode/
+setup.cfg
+.env
+.DS_Store
+celerybeat.pid
+app/logs/debug.log
+app/logs/celery.log
+/k8s/secrets/
+.python-version
+compose.dev.yml
