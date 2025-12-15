@@ -1,0 +1,76 @@
+= Lincride  API.
+Hussayn Abdul-Samad O. <hussaynabdsamad07@gmail.com>
+1.0, December 15, 2025: Lincride  APIReadme...
+:toc:
+:icons: font
+:url-quickref: https://github.com/hussayn-dev/ride-hailing/
+
+TIP: Always read the doc. And remember to update the doc as soon as there is need for it to allow others have a smooth development experience.
+
+== Clone Repository
+
+Clone the repo
+
+[source,bash]
+----
+git clone https://github.com/hussayn-dev/ride-hailing/
+cd ride-hailing
+----
+*Update the .env from the .env.sample* you can copy it
+
+== Setup Local Development Environment
+
+Setup your virtual environment using venv and poetry footnote:[Your local venv setup may be slightly different depending on your operating system].
+
+[source,bash]
+----
+py -m venv venv
+source venv/bin/activate
+pip install poetry
+poetry install
+----
+
+== Run Code Locally
+
+Ensure that the latest version of docker desktop is installed on your local machine. This will also install docker compose alongside automatically. Follow this link to install docker https://docs.docker.com/desktop/install/mac-install[docker installation].
+
+The run the following command from the root of the application
+
+[source,bash]
+----
+docker compose up --build
+----
+
+_Access the API doc on http://localhost:8009/api/v1/doc[API Doc]_
+
+
+=== Manage Migrations
+Whenever you make changes to models, you need to generate migrations locally before pushing your code to the repo. In order to generate migrations, kindly run the following command in another terminal window while your main app is also running
+
+[source,bash]
+----
+docker compose exec api python manage.py makemigrations
+docker compose exec api python manage.py migrate
+----
+
+-----
+to update shared repo:
+After deployment of shared repo
+use the potrery add command to readd the shared repoand run build
+------
+
+
+
+.Table Contributors
+|===
+|Name |Role |Email
+
+|Hussayn Abdul-Samad O. |SBE |hussaynabdsamad07@gmail.com
+
+|===
+
+[quote]
+____
+Happy Coding
+____
+
