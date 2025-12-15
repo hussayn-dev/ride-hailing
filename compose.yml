@@ -105,7 +105,7 @@ services:
     ports:
       - "9092:9092"
     volumes:
-      - ./kafka/data:/var/lib/kafka/data
+    - kafka-data:/var/lib/kafka/data
     environment:
       - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
       - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
@@ -126,6 +126,8 @@ services:
     depends_on:
       - kafka
       - zookeeper
+
 volumes:
+  kafka-data:
   db-data:
   redis-data:
