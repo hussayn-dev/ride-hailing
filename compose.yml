@@ -42,6 +42,10 @@ services:
     depends_on:
       - db
       - redis
+      - kafka
+      - zookeeper
+    networks:
+      - default
 
   nginx:
     image: nginx:latest
@@ -99,6 +103,9 @@ services:
       - ALLOW_ANONYMOUS_LOGIN=yes
     ports:
       - "2181:2181"
+    networks:
+      - default
+
   kafka:
     container_name: kafka
     image: confluentinc/cp-kafka:7.5.0
@@ -112,6 +119,8 @@ services:
       - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
     depends_on:
       - zookeeper
+    networks:
+      - default
 
   kafka-ui:
     container_name: kafka-ui
@@ -126,6 +135,8 @@ services:
     depends_on:
       - kafka
       - zookeeper
+    networks:
+      - default
 
 volumes:
   kafka-data:
