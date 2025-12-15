@@ -12,7 +12,7 @@ from trip.v1.serializers import (
     CreateTripSerializer,
     UpdateTripSerializer,
     MatchingTripsSerializer,
-    TripRouteMatchSerializer, TripMatchResponseSerializer,
+    TripMatchResponseSerializer,
 )
 
 

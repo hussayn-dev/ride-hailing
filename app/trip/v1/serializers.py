@@ -131,34 +131,6 @@ class GetTripsSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class TripRouteMatchSerializer(serializers.ModelSerializer):
-    pickup_dist = serializers.FloatField(read_only=True)
-    drop_off_dist = serializers.FloatField(read_only=True)
-    route_distance = serializers.FloatField(read_only=True)
-    eta_minutes = serializers.FloatField(read_only=True)
-
-    class Meta:
-        model = Trip
-        fields = [
-            'id',
-            'created_by',
-            'starting_location',
-            'destination_location',
-            'route_geometry',
-            'available_seats',
-            'is_ride_requests_allowed',
-            'date_added',
-            'date_last_updated',
-            'distance',
-            'duration',
-            'pickup_dist',
-            'drop_off_dist',
-            'route_distance',
-            'eta_minutes',
-        ]
-        read_only_fields = fields
-
-
 class TripMatchResponseSerializer(serializers.Serializer):
     """Serializer for trip match response."""
     trip_id = serializers.CharField(source='id')
