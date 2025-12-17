@@ -83,7 +83,7 @@ class TripViewSetTest(APITestCase):
         response = self.client.patch(url, payload, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["route_geometry"], expected_polyline)
+        self.assertEqual(response.data["route_geometry"], self.encoded_polyline)
 
     def test_retrieve_trip(self):
         url = f"/api/trips/{self.trip_id}/"
